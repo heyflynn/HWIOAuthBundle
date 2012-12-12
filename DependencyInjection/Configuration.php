@@ -32,6 +32,7 @@ class Configuration implements ConfigurationInterface
             'facebook',
             'github',
             'google',
+            'instagram',
             'sensio_connect',
             'stack_exchange',
             'vkontakte',

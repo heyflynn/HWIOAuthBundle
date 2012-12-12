@@ -21,6 +21,7 @@ hwi_oauth:
 - [Facebook](2x-facebook.md)
 - [GitHub](2x-github.md)
 - [Google](2x-google.md)
+- [Instagram](2x-instagram.md)
 - [Linkedin](2x-linkedin.md)
 - [SensioLabs Connect](2x-sensio_connect.md)
 - [Stack Exchange](2x-stack_exchange.md)
