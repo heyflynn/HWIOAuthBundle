@@ -190,6 +190,7 @@ class GenericOAuth1ResourceOwner extends AbstractResourceOwner
         }
 
         $response['timestamp'] = $timestamp;
+        $response['referer']   = $apiResponse->getHeader('Referer');
 
         $this->storage->save($this, $response);
 

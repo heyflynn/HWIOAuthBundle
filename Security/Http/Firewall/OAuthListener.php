@@ -15,7 +15,8 @@ use Symfony\Component\Security\Http\Firewall\AbstractAuthenticationListener,
     Symfony\Component\HttpFoundation\Request,
     Symfony\Component\Security\Core\Exception\AuthenticationException;
 
-use HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken,
+use HWI\Bundle\OAuthBundle\OAuth\ResourceOwnerInterface,
+    HWI\Bundle\OAuthBundle\Security\Core\Authentication\Token\OAuthToken,
     HWI\Bundle\OAuthBundle\Security\Http\ResourceOwnerMap;
 
 /**
@@ -74,6 +75,7 @@ class OAuthListener extends AbstractAuthenticationListener
     {
         $this->handleOAuthError($request);
 
+        /* @var $resourceOwner ResourceOwnerInterface */
         list($resourceOwner, $checkPath) = $this->resourceOwnerMap->getResourceOwnerByRequest($request);
 
         if (!$resourceOwner) {
@@ -88,6 +90,13 @@ class OAuthListener extends AbstractAuthenticationListener
             $request,
             $this->httpUtils->createRequest($request, $checkPath)->getUri()
         );
+
+        // Workaround for OAuth1.0a losing `referer` header while redirecting
+        if (is_array($accessToken) && isset($accessToken['referer'])) {
+            $request->headers->set('Referer', $accessToken['referer']);
+
+            unset($accessToken['referer']);
+        }
 
         $token = new OAuthToken($accessToken);
         $token->setResourceOwnerName($resourceOwner->getName());

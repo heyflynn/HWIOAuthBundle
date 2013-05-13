@@ -96,7 +96,7 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
 
         $this->storage->expects($this->once())
             ->method('save')
-            ->with($this->resourceOwner, array('oauth_token' => 'token', 'oauth_token_secret' => 'secret', 'timestamp' => time()));
+            ->with($this->resourceOwner, array('oauth_token' => 'token', 'oauth_token_secret' => 'secret', 'timestamp' => time(), 'referer' => null));
 
         $this->assertEquals(
             $this->options['authorization_url'].'&oauth_token=token',
@@ -152,7 +152,25 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
         $this->storage->expects($this->once())
             ->method('fetch')
             ->with($this->resourceOwner, 'token')
-            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2')));
+            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2', 'referer' => null)));
+
+        $this->assertEquals(
+            array('oauth_token' => 'token', 'oauth_token_secret' => 'secret'),
+            $this->resourceOwner->getAccessToken($request, 'http://redirect.to/')
+        );
+    }
+
+    public function testGetAccessTokenRequestHaveHeaders()
+    {
+        $this->mockBuzz('oauth_token=token&oauth_token_secret=secret');
+
+        $request = new Request(array('oauth_verifier' => 'code', 'oauth_token' => 'token'));
+        $request->headers->set('Referer', 'http://redirect.to/');
+
+        $this->storage->expects($this->once())
+            ->method('fetch')
+            ->with($this->resourceOwner, 'token')
+            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2', 'referer' => 'http://redirect.to/')));
 
         $this->assertEquals(
             array('oauth_token' => 'token', 'oauth_token_secret' => 'secret'),
@@ -169,7 +187,7 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
         $this->storage->expects($this->once())
             ->method('fetch')
             ->with($this->resourceOwner, 'token')
-            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2')));
+            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2', 'referer' => null)));
 
         $this->assertEquals(
             array('oauth_token' => 'token', 'oauth_token_secret' => 'secret'),
@@ -186,7 +204,7 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
         $this->storage->expects($this->once())
             ->method('fetch')
             ->with($this->resourceOwner, 'token')
-            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2')));
+            ->will($this->returnValue(array('oauth_token' => 'token2', 'oauth_token_secret' => 'secret2', 'referer' => null)));
 
         $this->assertEquals(
             array('oauth_token' => 'token', 'oauth_token_secret' => 'secret'),
@@ -203,7 +221,8 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
 
         $this->storage->expects($this->once())
             ->method('fetch')
-            ->will($this->returnValue(array('oauth_token' => 'token', 'oauth_token_secret' => 'secret')));
+            ->with($this->resourceOwner, 'token')
+            ->will($this->returnValue(array('oauth_token' => 'token', 'oauth_token_secret' => 'secret', 'referer' => null)));
 
         $this->storage->expects($this->never())
             ->method('save');
@@ -222,7 +241,8 @@ class GenericOAuth1ResourceOwnerTest extends \PHPUnit_Framework_TestCase
 
         $this->storage->expects($this->once())
             ->method('fetch')
-            ->will($this->returnValue(array('oauth_token' => 'token', 'oauth_token_secret' => 'secret')));
+            ->with($this->resourceOwner, 'token')
+            ->will($this->returnValue(array('oauth_token' => 'token', 'oauth_token_secret' => 'secret', 'referer' => null)));
 
         $this->storage->expects($this->never())
             ->method('save');
